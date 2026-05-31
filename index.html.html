@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تاسِ استخوانی (مار و پله‌یِ مجوز)</title>
+    <style>
+        body {
+            font-family: 'Courier New', Courier, monospace;
+            /* پس‌زمینه شبیه به کاغذ کاهی قدیمی */
+            background-color: #f2ead3;
+            background-image: 
+                radial-gradient(#d6cbb1 1px, transparent 1px),
+                radial-gradient(#e3d7c1 1px, transparent 1px);
+            background-size: 20px 20px, 30px 30px;
+            background-position: 0 0, 10px 10px;
+            color: #2b2b2b;
+            text-align: center;
+            padding: 40px 20px;
+            direction: rtl;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        h1 {
+            border-bottom: 3px solid #3b3024;
+            padding-bottom: 10px;
+            color: #2a2218;
+            margin-bottom: 5px;
+            font-weight: 900;
+        }
+        
+        p {
+            font-weight: bold;
+            color: #5c4d3c;
+            font-size: 19px;
+            margin-bottom: 50px;
+        }
+
+        #dice-board {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 50px;
+            perspective: 800px;
+        }
+
+        /* ساختار به شدت نامنظم استخوان */
+        .bone-die {
+            width: 100px;
+            height: 100px;
+            display: grid;
+            grid-template-areas:
+                "a . c"
+                "d e f"
+                "g . i";
+            padding: 15px;
+            
+            /* رنگ و بافت کثیف استخوانی */
+            background-color: #eaddcb;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.9) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(139, 115, 85, 0.2) 0%, transparent 50%),
+                linear-gradient(45deg, transparent 40%, rgba(100, 80, 50, 0.1) 45%, transparent 50%);
+            
+            /* ایجاد شکل کاملاً قناس و کج برای تاس اول */
+            border-radius: 20% 40% 25% 35% / 35% 25% 45% 20%;
+            
+            /* سایه‌های عمیق برای برجستگی سه‌بعدی */
+            box-shadow: 
+                inset 6px 8px 10px rgba(255, 255, 255, 0.9),
+                inset -8px -10px 15px rgba(120, 90, 60, 0.6),
+                inset 12px -5px 10px rgba(160, 130, 90, 0.3),
+                6px 12px 18px rgba(0, 0, 0, 0.4);
+            
+            /* خط دور ضخیم شبیه به نقاشی با قلم مرکب */
+            border: 3px solid #2b2218;
+            
+            transition: transform 0.1s;
+        }
+
+        /* قناس کردنِ متفاوتِ تاس دوم تا شبیه هم نباشند */
+        #die2 {
+            border-radius: 40% 25% 35% 20% / 25% 40% 20% 35%;
+            background-image: 
+                radial-gradient(circle at 70% 20%, rgba(255,255,255,0.9) 0%, transparent 40%),
+                radial-gradient(circle at 30% 70%, rgba(139, 115, 85, 0.3) 0%, transparent 50%);
+        }
+
+        /* سوراخ‌های تراشیده شده روی استخوان */
+        .dot {
+            display: block;
+            width: 22px;
+            height: 22px;
+            background-color: #1a1510;
+            /* سوراخ‌های نامتقارن */
+            border-radius: 40% 60% 50% 45% / 55% 40% 60% 45%;
+            box-shadow: 
+                inset -2px -2px 4px rgba(255,255,255,0.4), 
+                inset 3px 4px 6px rgba(0,0,0,0.9),
+                1px 1px 1px rgba(255,255,255,0.8);
+            justify-self: center;
+            align-self: center;
+        }
+
+        .dot-1 { grid-area: a; }
+        .dot-2 { grid-area: c; }
+        .dot-3 { grid-area: d; }
+        .dot-4 { grid-area: e; }
+        .dot-5 { grid-area: f; }
+        .dot-6 { grid-area: g; }
+        .dot-7 { grid-area: i; }
+
+        button {
+            background-color: #2b2218;
+            color: #f2ead3;
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 15px 50px;
+            font-size: 24px;
+            font-family: inherit;
+            cursor: pointer;
+            font-weight: 900;
+            box-shadow: 5px 5px 0px #1a1510;
+            transition: all 0.1s ease;
+        }
+        
+        button:hover {
+            background-color: #4a3e2f;
+        }
+        
+        button:active {
+            box-shadow: 1px 1px 0px #1a1510;
+            transform: translate(4px, 4px);
+        }
+
+        #result-text {
+            margin-top: 35px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #2b2218;
+            min-height: 40px;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px 30px;
+            border-radius: 5px;
+            border: 2px dashed #8b7962;
+        }
+        
+        .highlight {
+            color: #9e1b1b;
+            font-size: 40px;
+            margin: 0 8px;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        /* انیمیشن پرتاب تاس (بسیار آشفته و طبیعی‌تر) */
+        .rattling-1 { animation: organic-roll 0.4s infinite; }
+        .rattling-2 { animation: organic-roll 0.35s infinite reverse; }
+
+        @keyframes organic-roll {
+            0% { transform: rotate(10deg) translate(0px, 0px) scale(1); }
+            20% { transform: rotate(60deg) translate(-15px, -20px) scale(1.1); }
+            40% { transform: rotate(140deg) translate(20px, -10px) scale(0.9); }
+            60% { transform: rotate(220deg) translate(-20px, 15px) scale(1.05); }
+            80% { transform: rotate(300deg) translate(15px, 15px) scale(0.95); }
+            100% { transform: rotate(370deg) translate(0px, 0px) scale(1); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>تاسِ استخوانی</h1>
+    <p>دو تا استخوان را بچرخان.<br>جمع دو عدد، حرکتِ توست.</p>
+
+    <div id="dice-board">
+        <!-- زوایای کج اولیه برای تاس‌ها -->
+        <div id="die1" class="bone-die" style="transform: rotate(15deg);"></div>
+        <div id="die2" class="bone-die" style="transform: rotate(-10deg);"></div>
+    </div>
+
+    <button id="roll-btn" onclick="rollDice()">بچرخان</button>
+
+    <div id="result-text">آماده‌ی پرتاب...</div>
+
+    <script>
+        const diceFaces = [
+            [],
+            ['dot-4'],
+            ['dot-1', 'dot-7'],
+            ['dot-1', 'dot-4', 'dot-7'],
+            ['dot-1', 'dot-2', 'dot-6', 'dot-7'],
+            ['dot-1', 'dot-2', 'dot-4', 'dot-6', 'dot-7'],
+            ['dot-1', 'dot-2', 'dot-3', 'dot-5', 'dot-6', 'dot-7']
+        ];
+
+        function drawFace(dieElement, number) {
+            dieElement.innerHTML = ''; 
+            const dots = diceFaces[number];
+            dots.forEach(dotClass => {
+                const dot = document.createElement('span');
+                dot.className = `dot ${dotClass}`;
+                dieElement.appendChild(dot);
+            });
+            // بعد از ایستادن تاس، یک زاویه کج و تصادفی به آن می‌دهد تا حس استخوان نامنظم حفظ شود
+            const randomTilt = Math.floor(Math.random() * 50) - 25; 
+            dieElement.style.transform = `rotate(${randomTilt}deg)`;
+        }
+
+        // حالت پیش‌فرض
+        drawFace(document.getElementById('die1'), 6);
+        drawFace(document.getElementById('die2'), 6);
+
+        function rollDice() {
+            const die1 = document.getElementById('die1');
+            const die2 = document.getElementById('die2');
+            const btn = document.getElementById('roll-btn');
+            const resultText = document.getElementById('result-text');
+            
+            btn.disabled = true;
+            resultText.innerHTML = "در حال ریختن تاس‌ها...";
+            
+            // پاک کردن نقطه‌ها حین چرخش
+            die1.innerHTML = '';
+            die2.innerHTML = '';
+            
+            // اضافه کردن کلاس انیمیشن لرزش
+            die1.classList.add('rattling-1');
+            die2.classList.add('rattling-2');
+
+            // محاسبه بعد از 1.2 ثانیه
+            setTimeout(() => {
+                const num1 = Math.floor(Math.random() * 6) + 1;
+                const num2 = Math.floor(Math.random() * 6) + 1;
+                const total = num1 + num2;
+                
+                die1.classList.remove('rattling-1');
+                die2.classList.remove('rattling-2');
+                
+                drawFace(die1, num1);
+                drawFace(die2, num2);
+                
+                resultText.innerHTML = `مجموع: <span class="highlight">${total}</span> خانه برو!`;
+                btn.disabled = false;
+                
+            }, 1200);
+        }
+    </script>
+
+</body>
+</html>
